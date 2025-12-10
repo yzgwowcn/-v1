@@ -12,7 +12,7 @@ export const THEME_CONFIG: ThemeConfig = {
   
   // Image Mode Configuration
   image: {
-    url: 'https://unsplash.com/photos/florence-cityscape-at-dusk-with-illuminated-duomo-KvqVUksWWx0',
+    url: 'https://images.unsplash.com/photo-1764377848355-2c2ef0e5f759',
     blur: true,
     blurStrength: '16px'
   }
