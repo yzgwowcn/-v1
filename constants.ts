@@ -12,7 +12,7 @@ export const THEME_CONFIG: ThemeConfig = {
   
   // Image Mode Configuration
   image: {
-    url: 'https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=2070&auto=format&fit=crop',
+    url: 'https://unsplash.com/photos/florence-cityscape-at-dusk-with-illuminated-duomo-KvqVUksWWx0',
     blur: true,
     blurStrength: '16px'
   }
@@ -24,7 +24,7 @@ export const THEME_CONFIG: ThemeConfig = {
 export const PROFILE: ProfileData = {
   name: 'YZG',
   title: 'YZG 的个人空间',
-  subtitle: '四川大学 | 空天科学与工程学院',
+  subtitle: '四川大学',
   avatarText: 'YZG',
   email: 'yzgwowcn@gmail.com',
   footerText: '© 2025-2026 YZG. All Rights Reserved.',
