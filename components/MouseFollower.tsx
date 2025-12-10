@@ -143,7 +143,7 @@ const MouseFollower: React.FC = () => {
           willChange: 'transform',
         }}
       >
-        <Plane size={24} fill="currentColor" />
+        <Plane size={64} fill="currentColor" />
       </div>
     </>
   );
