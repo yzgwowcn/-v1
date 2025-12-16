@@ -50,9 +50,9 @@ export const TOOLS: ToolItem[] = [
     iconName: 'message-circle-warning',
   },
   {
-    name: '待开发项目',
-    url: 'https://your-project-3.vercel.app',
-    iconName: 'FileText',
+    name: 'IP查询',
+    url: 'https://ip.systemwow.top/',
+    iconName: 'locate-fixed',
   },
 ];
 
