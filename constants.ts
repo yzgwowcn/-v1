@@ -47,12 +47,12 @@ export const TOOLS: ToolItem[] = [
   {
     name: 'P2P测试',
     url: 'https://p2p.systemwow.top/',
-    iconName: 'message-circle-warning',
+    iconName: 'MessageCircleWarning',
   },
   {
     name: 'IP查询',
     url: 'https://ip.systemwow.top/',
-    iconName: 'locate-fixed',
+    iconName: 'LocateFixed',
   },
 ];
 
