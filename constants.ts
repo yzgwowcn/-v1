@@ -49,6 +49,11 @@ export const TOOLS: ToolItem[] = [
     url: 'https://your-project-3.vercel.app',
     iconName: 'FileText',
   },
+  {
+    name: '待开发项目',
+    url: 'https://your-project-3.vercel.app',
+    iconName: 'FileText',
+  },
 ];
 
 // ==========================================
