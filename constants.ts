@@ -45,9 +45,9 @@ export const TOOLS: ToolItem[] = [
     iconName: 'Cloudy',
   },
   {
-    name: '待开发项目',
-    url: 'https://your-project-3.vercel.app',
-    iconName: 'FileText',
+    name: 'P2P测试',
+    url: 'https://p2p.systemwow.top/',
+    iconName: 'message-circle-warning',
   },
   {
     name: '待开发项目',
