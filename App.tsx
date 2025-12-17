@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ExternalLink, ChevronDown, Send } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ExternalLink, ChevronDown, Send, Search } from 'lucide-react';
 import MouseFollower from './components/MouseFollower';
 import IconHelper from './components/IconHelper';
 import AboutModal from './components/AboutModal';
@@ -7,12 +7,15 @@ import ThemeSwitcher from './components/ThemeSwitcher';
 import BackgroundEffect from './components/BackgroundEffect';
 import StyleEditor from './components/StyleEditor';
 import WeatherSidebar from './components/WeatherSidebar';
+import SearchBar from './components/SearchBar';
+import Hitokoto from './components/Hitokoto';
 import { LINKS, PROFILE, TOOLS, THEME_CONFIG } from './constants';
 import type { ThemeMode, BackgroundSettings } from './types';
 
 const App: React.FC = () => {
   const [isToolsExpanded, setIsToolsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [themeMode, setThemeMode] = useState<ThemeMode>('day');
   
   // New State for Background Customization
@@ -22,6 +25,20 @@ const App: React.FC = () => {
     hue: 0,
     saturation: 100,
   });
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Toggle Search with Ctrl+K or Cmd+K
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Lookup for dynamic colors
   const colorMap: Record<string, { bg: string, text: string, hoverBg: string, border: string }> = {
@@ -37,20 +54,35 @@ const App: React.FC = () => {
       {/* Advanced Background System with Dynamic Settings */}
       <BackgroundEffect mode={themeMode} config={THEME_CONFIG} settings={bgSettings} />
 
-      {/* Theme Switcher (Top Right) */}
+      {/* --- FLOATING CONTROLS --- */}
+      
+      {/* 1. Theme Switcher (Top Right Fixed) */}
       <ThemeSwitcher currentMode={themeMode} onSelectMode={setThemeMode} />
 
-      {/* Style Editor (Right Side) */}
+      {/* 2. Style Editor (Right Edge Center Fixed - handled inside component) */}
       <StyleEditor settings={bgSettings} onChange={setBgSettings} />
 
-      {/* Weather Sidebar (Left Side) */}
+      {/* 3. Search Trigger (Right Edge Fixed - Unified Style) */}
+      <button 
+        onClick={() => setIsSearchOpen(true)}
+        className="fixed right-0 top-[42%] z-40 py-3 pl-4 pr-3 rounded-l-2xl bg-white/20 backdrop-blur-md border-y border-l border-white/30 shadow-[0_4px_20px_rgba(0,0,0,0.05)] text-slate-600 hover:text-blue-600 hover:bg-white/60 hover:pl-6 transition-all duration-300 group"
+        title="搜索 (Ctrl+K)"
+      >
+        <Search size={20} className="group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-300" />
+      </button>
+
+      {/* 4. Weather Sidebar (Left Edge Center Fixed - handled inside component) */}
       <WeatherSidebar />
+
+
+      {/* Universal Search Modal */}
+      <SearchBar isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
 
       {/* Mouse Follower Layer */}
       <MouseFollower />
       
       {/* Content Container (Above background) */}
-      <div className="relative z-10 w-full p-4 flex justify-center mb-16"> {/* mb-16 to avoid overlapping with StyleEditor on mobile */}
+      <div className="relative z-10 w-full p-4 flex justify-center mb-16 mt-8"> 
         {/* Main Glass Container */}
         <div className="glass-effect w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden p-6 md:p-10 relative bg-white/80 backdrop-blur-2xl border border-white/40 ring-1 ring-white/30">
           
@@ -70,8 +102,12 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            <h1 className="text-2xl font-bold mb-1 text-slate-800">{PROFILE.title}</h1>
-            <p className="text-sm text-slate-500">{PROFILE.subtitle}</p>
+            <h1 className="text-2xl font-bold mb-1 text-slate-800 tracking-tight">{PROFILE.title}</h1>
+            <p className="text-sm text-slate-500 mb-6 font-light">{PROFILE.subtitle}</p>
+            
+            {/* Dynamic Hitokoto Subtitle Card */}
+            <Hitokoto defaultText="生活明朗，万物可爱。" />
+            
           </div>
 
           {/* Links Grid */}

@@ -28,11 +28,11 @@ const StyleEditor: React.FC<StyleEditorProps> = ({ settings, onChange }) => {
 
   return (
     <>
-      {/* Toggle Button - Now a sleek tab on the right edge */}
+      {/* Toggle Button - Unified Style */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed right-0 top-1/2 -translate-y-1/2 z-50 py-3 pl-3 pr-2 rounded-l-xl shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 border-l border-t border-b border-white/40 backdrop-blur-md group hover:pl-5 ${
-            isOpen ? 'bg-slate-900/80 text-blue-400 translate-x-full opacity-0' : 'bg-white/30 text-slate-600 hover:bg-white/60'
+        className={`fixed right-0 top-[50%] z-50 py-3 pl-4 pr-3 rounded-l-2xl border-y border-l border-white/30 shadow-[0_4px_20px_rgba(0,0,0,0.05)] transition-all duration-300 backdrop-blur-md group hover:pl-6 ${
+            isOpen ? 'bg-slate-900/80 text-blue-400 translate-x-full opacity-0' : 'bg-white/20 text-slate-600 hover:bg-white/60 hover:text-blue-600'
         }`}
         title="打开视觉设置"
       >
