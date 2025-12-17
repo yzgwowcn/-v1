@@ -6,6 +6,7 @@ import AboutModal from './components/AboutModal';
 import ThemeSwitcher from './components/ThemeSwitcher';
 import BackgroundEffect from './components/BackgroundEffect';
 import StyleEditor from './components/StyleEditor';
+import WeatherSidebar from './components/WeatherSidebar';
 import { LINKS, PROFILE, TOOLS, THEME_CONFIG } from './constants';
 import type { ThemeMode, BackgroundSettings } from './types';
 
@@ -39,8 +40,11 @@ const App: React.FC = () => {
       {/* Theme Switcher (Top Right) */}
       <ThemeSwitcher currentMode={themeMode} onSelectMode={setThemeMode} />
 
-      {/* Style Editor (Bottom Right/Center) */}
+      {/* Style Editor (Right Side) */}
       <StyleEditor settings={bgSettings} onChange={setBgSettings} />
+
+      {/* Weather Sidebar (Left Side) */}
+      <WeatherSidebar />
 
       {/* Mouse Follower Layer */}
       <MouseFollower />
