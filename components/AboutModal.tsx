@@ -58,7 +58,7 @@ const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose, profile }) => 
             <p className="text-lg text-slate-700 font-medium">{profile.name}</p>
             <p className="text-slate-500">{profile.subtitle}</p>
             <p className="text-slate-400 text-sm mt-4">
-                欢迎来到我的个人主页，这里收集了我常用的工具和联系方式。
+                欢迎来到我的个人主页
             </p>
           </div>
           
