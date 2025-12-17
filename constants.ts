@@ -1,7 +1,7 @@
-import { ThemeConfig, ProfileData, SocialLink, ToolItem } from './types';
+import { ThemeConfig, ProfileData, SocialLink, ToolCategory } from './types';
 
 // ==========================================
-// 🎨 THEME CONFIGURATION
+// 主题修改
 // ==========================================
 export const THEME_CONFIG: ThemeConfig = {
   // Day Mode: Bright, Aurora-like (Original)
@@ -12,7 +12,7 @@ export const THEME_CONFIG: ThemeConfig = {
   
   // Image Mode Configuration
   image: {
-    url: 'https://images.unsplash.com/photo-1764377848355-2c2ef0e5f759',
+    url: 'https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=2070&auto=format&fit=crop',
     blur: true,
     blurStrength: '16px'
   }
@@ -31,29 +31,48 @@ export const PROFILE: ProfileData = {
 };
 
 // ==========================================
-// 🛠️ TOOLS LIST (Appears in the dropdown)
+// 🛠️ TOOLS LIST (Categorized)
 // ==========================================
-export const TOOLS: ToolItem[] = [
+export const TOOLS: ToolCategory[] = [
   {
-    name: '推进原理与技术-在线计算程序',
-    url: 'https://aero.systemwow.top/',
-    iconName: 'Rocket',
+    title: '学校相关',
+    items: [
+      {
+        name: '推进原理与技术-在线计算',
+        url: 'https://aero.systemwow.top/',
+        iconName: 'Rocket',
+      }
+    ]
   },
   {
-    name: '天气预报',
-    url: 'https://weather.systemwow.top/',
-    iconName: 'Cloudy',
+    title: '日常生活',
+    items: [
+      {
+        name: '天气预报',
+        url: 'https://weather.systemwow.top/',
+        iconName: 'Cloudy',
+      }
+    ]
   },
   {
-    name: 'P2P测试',
-    url: 'https://p2p.systemwow.top/',
-    iconName: 'MessageCircleWarning',
+    title: '实用 / 其他',
+    items: [
+      {
+        name: '待开发项目',
+        url: 'https://your-project-3.vercel.app',
+        iconName: 'FileText',
+      }
+    ]
   },
+  // 待扩展接口
+  /*
   {
-    name: 'IP查询',
-    url: 'https://ip.systemwow.top/',
-    iconName: 'LocateFixed',
-  },
+    title: '游戏娱乐',
+    items: [
+      { name: '我的世界服务器', url: '#', iconName: 'Gamepad2' }
+    ]
+  }
+  */
 ];
 
 // ==========================================
