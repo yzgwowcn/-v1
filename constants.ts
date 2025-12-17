@@ -41,6 +41,11 @@ export const TOOLS: ToolCategory[] = [
         name: '推进原理与技术-在线计算',
         url: 'https://aero.systemwow.top/',
         iconName: 'Rocket',
+      },
+	  {
+        name: '四川大学图书馆',
+        url: 'https://lib.scu.edu.cn/',
+        iconName: 'LibraryBig',
       }
     ]
   },
@@ -51,6 +56,11 @@ export const TOOLS: ToolCategory[] = [
         name: '天气预报',
         url: 'https://weather.systemwow.top/',
         iconName: 'Cloudy',
+      },
+	  {
+        name: 'Google 翻译', 
+        url: 'https://translate.google.com/',
+        iconName: 'Languages',
       }
     ]
   },
@@ -60,12 +70,12 @@ export const TOOLS: ToolCategory[] = [
       {
         name: 'P2P聊天',
         url: 'https://p2p.systemwow.top/',
-        iconName: 'chat',
-      }
+        iconName: 'MessageCircleWarning',
+      },
       {
         name: 'IP',
         url: 'https://ip.systemwow.top/',
-        iconName: 'chat',
+        iconName: 'LocateFixed',
       }
     ]
   },
