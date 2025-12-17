@@ -122,25 +122,40 @@ const App: React.FC = () => {
                       />
                     </div>
                     
-                    {/* Expanded List */}
+                    {/* Expanded List with Categories */}
                     <div 
                       className={`bg-slate-50 border-t border-slate-100 transition-all duration-300 ease-in-out overflow-hidden ${
-                        isToolsExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                        isToolsExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
                       }`}
                     >
-                      <div className="p-3 grid gap-2">
-                        {TOOLS.map((tool, idx) => (
-                          <a 
-                            key={idx}
-                            href={tool.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center p-3 rounded-lg hover:bg-white hover:shadow-sm transition-all text-slate-600 hover:text-blue-600 group/item"
-                          >
-                            <IconHelper name={tool.iconName} size={16} className="mr-3 group-hover/item:scale-110 transition-transform" />
-                            <span className="font-medium">{tool.name}</span>
-                            <ExternalLink size={12} className="ml-auto opacity-50" />
-                          </a>
+                      <div className="p-4 space-y-6">
+                        {TOOLS.map((category, catIdx) => (
+                          <div key={catIdx}>
+                            {/* Category Title */}
+                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1 flex items-center">
+                              {category.title}
+                              <div className="h-px bg-slate-200 flex-1 ml-3"></div>
+                            </h4>
+                            
+                            {/* Items Grid */}
+                            <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
+                              {category.items.map((tool, idx) => (
+                                <a 
+                                  key={idx}
+                                  href={tool.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all text-slate-600 hover:text-blue-600 group/item border border-transparent hover:border-slate-100"
+                                >
+                                  <div className="bg-white p-1.5 rounded-md shadow-sm border border-slate-100 mr-3 group-hover/item:text-blue-500 transition-colors">
+                                    <IconHelper name={tool.iconName} size={16} />
+                                  </div>
+                                  <span className="font-medium text-sm">{tool.name}</span>
+                                  <ExternalLink size={12} className="ml-auto opacity-30 group-hover/item:opacity-100 transition-opacity" />
+                                </a>
+                              ))}
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
