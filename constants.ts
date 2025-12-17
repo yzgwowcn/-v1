@@ -58,9 +58,14 @@ export const TOOLS: ToolCategory[] = [
     title: '实用 / 其他',
     items: [
       {
-        name: '待开发项目',
-        url: 'https://your-project-3.vercel.app',
-        iconName: 'FileText',
+        name: 'P2P聊天',
+        url: 'https://p2p.systemwow.top/',
+        iconName: 'chat',
+      }
+      {
+        name: 'IP',
+        url: 'https://ip.systemwow.top/',
+        iconName: 'chat',
       }
     ]
   },
