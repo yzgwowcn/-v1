@@ -12,6 +12,13 @@ export interface ThemeConfig {
   };
 }
 
+export interface BackgroundSettings {
+  speed: number;       // Animation speed multiplier (0.1 - 5)
+  blur: number;        // Blur amount in px
+  hue: number;         // Hue rotation in degrees
+  saturation: number;  // Saturation percentage
+}
+
 export interface ToolItem {
   name: string;
   url: string;

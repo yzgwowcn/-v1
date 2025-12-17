@@ -4,46 +4,25 @@ import MouseFollower from './components/MouseFollower';
 import IconHelper from './components/IconHelper';
 import AboutModal from './components/AboutModal';
 import ThemeSwitcher from './components/ThemeSwitcher';
+import BackgroundEffect from './components/BackgroundEffect';
+import StyleEditor from './components/StyleEditor';
 import { LINKS, PROFILE, TOOLS, THEME_CONFIG } from './constants';
-import type { ThemeMode } from './types';
+import type { ThemeMode, BackgroundSettings } from './types';
 
 const App: React.FC = () => {
   const [isToolsExpanded, setIsToolsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [themeMode, setThemeMode] = useState<ThemeMode>('day');
+  
+  // New State for Background Customization
+  const [bgSettings, setBgSettings] = useState<BackgroundSettings>({
+    speed: 1.0,
+    blur: 80,
+    hue: 0,
+    saturation: 100,
+  });
 
-  // Determine background styles based on active mode
-  let bgStyle: React.CSSProperties = {};
-  let isGradientAnim = false;
-
-  switch (themeMode) {
-    case 'day':
-      bgStyle = { 
-        background: THEME_CONFIG.dayGradient, 
-        backgroundSize: '400% 400%' 
-      };
-      isGradientAnim = true;
-      break;
-    case 'night':
-      bgStyle = { 
-        background: THEME_CONFIG.nightGradient, 
-        backgroundSize: '400% 400%' 
-      };
-      isGradientAnim = true;
-      break;
-    case 'image':
-      bgStyle = { 
-        backgroundImage: `url(${THEME_CONFIG.image.url})`, 
-        backgroundSize: 'cover', 
-        backgroundPosition: 'center',
-        transform: THEME_CONFIG.image.blur ? 'scale(1.05)' : 'none',
-        filter: THEME_CONFIG.image.blur ? `blur(${THEME_CONFIG.image.blurStrength})` : 'none'
-      };
-      isGradientAnim = false;
-      break;
-  }
-
-  // Lookup for dynamic colors to ensure Tailwind picks them up or they work at runtime
+  // Lookup for dynamic colors
   const colorMap: Record<string, { bg: string, text: string, hoverBg: string, border: string }> = {
     blue: { bg: 'bg-blue-50', text: 'text-blue-600', hoverBg: 'group-hover:bg-blue-600', border: 'hover:border-blue-300' },
     pink: { bg: 'bg-pink-50', text: 'text-pink-500', hoverBg: 'group-hover:bg-pink-500', border: 'hover:border-pink-300' },
@@ -54,22 +33,22 @@ const App: React.FC = () => {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden font-sans transition-colors duration-700">
       
-      {/* Background Layer */}
-      <div 
-        className={`absolute inset-0 z-0 transition-all duration-1000 ease-in-out ${isGradientAnim ? 'animate-gradient-xy' : ''}`}
-        style={bgStyle}
-      />
+      {/* Advanced Background System with Dynamic Settings */}
+      <BackgroundEffect mode={themeMode} config={THEME_CONFIG} settings={bgSettings} />
 
-      {/* Theme Switcher */}
+      {/* Theme Switcher (Top Right) */}
       <ThemeSwitcher currentMode={themeMode} onSelectMode={setThemeMode} />
+
+      {/* Style Editor (Bottom Right/Center) */}
+      <StyleEditor settings={bgSettings} onChange={setBgSettings} />
 
       {/* Mouse Follower Layer */}
       <MouseFollower />
       
       {/* Content Container (Above background) */}
-      <div className="relative z-10 w-full p-4 flex justify-center">
+      <div className="relative z-10 w-full p-4 flex justify-center mb-16"> {/* mb-16 to avoid overlapping with StyleEditor on mobile */}
         {/* Main Glass Container */}
-        <div className="glass-effect w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden p-6 md:p-10 relative bg-white/90 backdrop-blur-xl border border-white/50">
+        <div className="glass-effect w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden p-6 md:p-10 relative bg-white/80 backdrop-blur-2xl border border-white/40 ring-1 ring-white/30">
           
           {/* Header */}
           <div className="text-center mb-8">
@@ -102,7 +81,7 @@ const App: React.FC = () => {
                 return (
                   <div 
                     key={link.id} 
-                    className={`col-span-1 md:col-span-2 bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-300 shadow-sm hover:shadow-md ${colors.border} group`}
+                    className={`col-span-1 md:col-span-2 bg-white/80 border border-slate-200/60 rounded-2xl overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl hover:scale-[1.01] hover:bg-white/95 ${colors.border} group backdrop-blur-sm`}
                   >
                     <div 
                       className="p-4 flex items-center justify-between cursor-pointer" 
@@ -124,7 +103,7 @@ const App: React.FC = () => {
                     
                     {/* Expanded List with Categories */}
                     <div 
-                      className={`bg-slate-50 border-t border-slate-100 transition-all duration-300 ease-in-out overflow-hidden ${
+                      className={`bg-slate-50/50 border-t border-slate-100/50 transition-all duration-300 ease-in-out overflow-hidden ${
                         isToolsExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
                       }`}
                     >
@@ -170,7 +149,7 @@ const App: React.FC = () => {
                   href={link.url} 
                   target={link.url.startsWith('mailto') ? '_self' : '_blank'}
                   rel="noopener noreferrer"
-                  className={`col-span-1 ${link.id === 'email' ? 'md:col-span-2' : ''} bg-white border border-slate-200 p-4 rounded-2xl flex items-center space-x-4 cursor-pointer ${colors.border} transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group`}
+                  className={`col-span-1 ${link.id === 'email' ? 'md:col-span-2' : ''} bg-white/80 border border-slate-200/60 p-4 rounded-2xl flex items-center space-x-4 cursor-pointer ${colors.border} transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:scale-[1.02] hover:bg-white/95 group backdrop-blur-sm`}
                 >
                   <div className={`${colors.bg} p-3 rounded-xl ${colors.text} ${colors.hoverBg} group-hover:text-white transition-colors`}>
                      <IconHelper name={link.iconName} />
