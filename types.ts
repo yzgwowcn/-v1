@@ -18,6 +18,11 @@ export interface ToolItem {
   iconName: string; // Key to map to Lucide icon
 }
 
+export interface ToolCategory {
+  title: string; // e.g., '学校', '生活'
+  items: ToolItem[];
+}
+
 export interface SocialLink {
   id: string;
   title: string;
