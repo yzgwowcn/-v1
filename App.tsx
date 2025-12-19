@@ -16,7 +16,7 @@ const App: React.FC = () => {
   const [isToolsExpanded, setIsToolsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [themeMode, setThemeMode] = useState<ThemeMode>('day');
+  const [themeMode, setThemeMode] = useState<ThemeMode>('night');
   
   // New State for Background Customization
   const [bgSettings, setBgSettings] = useState<BackgroundSettings>({
