@@ -79,15 +79,12 @@ export const TOOLS: ToolCategory[] = [
       }
     ]
   },
-  // 待扩展接口
-  /*
   {
     title: '游戏娱乐',
     items: [
-      { name: '我的世界服务器', url: '#', iconName: 'Gamepad2' }
+      { name: '游戏资源-非线性列车', url: 'https://juij.fun/', iconName: 'Gamepad2' }
     ]
   }
-  */
 ];
 
 // ==========================================
