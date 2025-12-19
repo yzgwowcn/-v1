@@ -1,231 +1,204 @@
-import React, { useState, useEffect } from 'react';
-import { ExternalLink, ChevronDown, Send, Search } from 'lucide-react';
-import MouseFollower from './components/MouseFollower';
-import IconHelper from './components/IconHelper';
-import AboutModal from './components/AboutModal';
-import ThemeSwitcher from './components/ThemeSwitcher';
-import BackgroundEffect from './components/BackgroundEffect';
-import StyleEditor from './components/StyleEditor';
-import WeatherSidebar from './components/WeatherSidebar';
-import SearchBar from './components/SearchBar';
-import Hitokoto from './components/Hitokoto';
-import { LINKS, PROFILE, TOOLS, THEME_CONFIG } from './constants';
-import type { ThemeMode, BackgroundSettings } from './types';
+import React, { useState, useMemo } from 'react';
+import Sidebar from './components/Layout/Sidebar';
+import MetricCard from './components/Layout/MetricCard';
+import StationChart from './components/Charts/StationChart';
+import OptimizationChart from './components/Charts/OptimizationChart';
+import BypassOptimizationChart from './components/Charts/BypassOptimizationChart';
+import TemperatureSensitivityChart from './components/Charts/TemperatureSensitivityChart';
+import EnvelopeChart from './components/Charts/EnvelopeChart';
+import { EngineInputs, TabOption, StationResult } from './types';
+import { solveEngine } from './services/engineService';
+import { Activity, Gauge, BarChart3, TrendingUp, Layers, AlertTriangle } from 'lucide-react';
+
+// Define defaultInputs outside the component to guarantee stability across renders
+const defaultInputs: EngineInputs = {
+  textbookMode: true,
+  refFsWet: 1095.0,
+  refSfcWet: 0.1804,
+  refFsDry: 643.0,
+  refSfcDry: 0.1274,
+  altitude: 11.0,
+  mach: 1.6,
+  massFlowDesign: 100.0,
+  bypassRatio: 0.4,
+  fanPressureRatio: 3.8,
+  hpcPressureRatio: 4.474,
+  tt4: 1800.0,
+  afterburnerOn: true,
+  ttAb: 2000.0,
+  
+  // Efficiency defaults
+  eta_cL: 0.868,
+  eta_cH: 0.878,
+  eta_tH: 0.89,
+  eta_tL: 0.91,
+  eta_m: 0.98,
+  eta_b: 0.98,
+
+  // Pressure Recovery defaults
+  sigma_i: 0.9335,
+  sigma_b: 0.97,
+  sigma_bypass: 0.98,
+  sigma_m: 0.97,
+  sigma_e: 0.98,
+  sigma_ab_dry: 0.98,
+  sigma_ab_wet: 0.96,
+
+  // Flow defaults
+  beta: 0.01,
+  delta_1: 0.05,
+  delta_2: 0.05,
+};
 
 const App: React.FC = () => {
-  const [isToolsExpanded, setIsToolsExpanded] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [themeMode, setThemeMode] = useState<ThemeMode>('day');
-  
-  // New State for Background Customization
-  const [bgSettings, setBgSettings] = useState<BackgroundSettings>({
-    speed: 1.0,
-    blur: 80,
-    hue: 0,
-    saturation: 100,
-  });
+  // State for the form inputs (Draft mode)
+  const [draftInputs, setDraftInputs] = useState<EngineInputs>(defaultInputs);
 
-  // Global Keyboard Shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Toggle Search with Ctrl+K or Cmd+K
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsSearchOpen((prev) => !prev);
-      }
-    };
+  // State for the actual calculation (Active mode)
+  const [activeInputs, setActiveInputs] = useState<EngineInputs>(defaultInputs);
+  const [activeTab, setActiveTab] = useState<TabOption>(TabOption.PARAM);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // Compute Results based on ACTIVE inputs
+  const results = useMemo(() => solveEngine(activeInputs), [activeInputs]);
 
-  // Lookup for dynamic colors
-  const colorMap: Record<string, { bg: string, text: string, hoverBg: string, border: string }> = {
-    blue: { bg: 'bg-blue-50', text: 'text-blue-600', hoverBg: 'group-hover:bg-blue-600', border: 'hover:border-blue-300' },
-    pink: { bg: 'bg-pink-50', text: 'text-pink-500', hoverBg: 'group-hover:bg-pink-500', border: 'hover:border-pink-300' },
-    gray: { bg: 'bg-gray-100', text: 'text-gray-700', hoverBg: 'group-hover:bg-slate-800', border: 'hover:border-gray-400' },
-    purple: { bg: 'bg-purple-50', text: 'text-purple-600', hoverBg: 'group-hover:bg-purple-600', border: 'hover:border-purple-300' },
+  // Handle Calculate Click
+  const handleCalculate = () => {
+    setActiveInputs({ ...draftInputs });
   };
 
+  const currentRefFs = activeInputs.afterburnerOn ? activeInputs.refFsWet : activeInputs.refFsDry;
+  const currentRefSfc = activeInputs.afterburnerOn ? activeInputs.refSfcWet : activeInputs.refSfcDry;
+  const d_Fs = results.Fs - currentRefFs;
+  const d_Sfc = results.SFC - currentRefSfc;
+  
+  const F_total_kN = results.F_total / 1000;
+
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden font-sans transition-colors duration-700">
+    <div className="flex flex-col lg:flex-row min-h-screen">
+      <Sidebar 
+        inputs={draftInputs} 
+        setInputs={setDraftInputs} 
+        onCalculate={handleCalculate}
+      />
       
-      {/* Advanced Background System with Dynamic Settings */}
-      <BackgroundEffect mode={themeMode} config={THEME_CONFIG} settings={bgSettings} />
-
-      {/* --- FLOATING CONTROLS --- */}
-      
-      {/* 1. Theme Switcher (Top Right Fixed) */}
-      <ThemeSwitcher currentMode={themeMode} onSelectMode={setThemeMode} />
-
-      {/* 2. Style Editor (Right Edge Center Fixed - handled inside component) */}
-      <StyleEditor settings={bgSettings} onChange={setBgSettings} />
-
-      {/* 3. Search Trigger (Right Edge Fixed - Unified Style) */}
-      <button 
-        onClick={() => setIsSearchOpen(true)}
-        className="fixed right-0 top-[42%] z-40 py-3 pl-4 pr-3 rounded-l-2xl bg-white/20 backdrop-blur-md border-y border-l border-white/30 shadow-[0_4px_20px_rgba(0,0,0,0.05)] text-slate-600 hover:text-blue-600 hover:bg-white/60 hover:pl-6 transition-all duration-300 group"
-        title="搜索 (Ctrl+K)"
-      >
-        <Search size={20} className="group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-300" />
-      </button>
-
-      {/* 4. Weather Sidebar (Left Edge Center Fixed - handled inside component) */}
-      <WeatherSidebar />
-
-
-      {/* Universal Search Modal */}
-      <SearchBar isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-
-      {/* Mouse Follower Layer */}
-      <MouseFollower />
-      
-      {/* Content Container (Above background) */}
-      <div className="relative z-10 w-full p-4 flex justify-center mb-16 mt-8"> 
-        {/* Main Glass Container */}
-        <div className="glass-effect w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden p-6 md:p-10 relative bg-white/80 backdrop-blur-2xl border border-white/40 ring-1 ring-white/30">
-          
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-24 h-24 mx-auto mb-4 relative flex items-center justify-center group">
-              {/* Logo Animation Rings */}
-              <div className="absolute inset-0 border-4 border-blue-400/30 rounded-full animate-pulse"></div>
-              <div className="absolute inset-2 border-2 border-blue-500 rounded-full border-dashed animate-spin-slow"></div>
-              
-              <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center shadow-lg z-10 overflow-hidden relative">
-                 <span className="text-2xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 tracking-widest z-10">
-                   {PROFILE.avatarText}
-                 </span>
-                 {/* Shine effect on hover */}
-                 <div className="absolute inset-0 bg-white/10 skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              </div>
-            </div>
-            
-            <h1 className="text-2xl font-bold mb-1 text-slate-800 tracking-tight">{PROFILE.title}</h1>
-            <p className="text-sm text-slate-500 mb-6 font-light">{PROFILE.subtitle}</p>
-            
-            {/* Dynamic Hitokoto Subtitle Card */}
-            <Hitokoto defaultText="生活明朗，万物可爱。" />
-            
-          </div>
-
-          {/* Links Grid */}
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-            
-            {LINKS.map((link) => {
-              const colors = colorMap[link.colorClass] || colorMap['blue'];
-
-              // Special handling for the Tools Group
-              if (link.isToolGroup) {
-                return (
-                  <div 
-                    key={link.id} 
-                    className={`col-span-1 md:col-span-2 bg-white/80 border border-slate-200/60 rounded-2xl overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl hover:scale-[1.01] hover:bg-white/95 ${colors.border} group backdrop-blur-sm`}
-                  >
-                    <div 
-                      className="p-4 flex items-center justify-between cursor-pointer" 
-                      onClick={() => setIsToolsExpanded(!isToolsExpanded)}
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className={`${colors.bg} p-3 rounded-xl ${colors.text} ${colors.hoverBg} group-hover:text-white transition-colors`}>
-                          <IconHelper name={link.iconName} />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-lg text-slate-800">{link.title}</h3>
-                          <p className="text-xs text-slate-500">{link.subtitle}</p>
-                        </div>
-                      </div>
-                      <ChevronDown 
-                        className={`text-slate-400 transition-transform duration-300 ${isToolsExpanded ? 'rotate-180' : ''}`} 
-                      />
-                    </div>
-                    
-                    {/* Expanded List with Categories */}
-                    <div 
-                      className={`bg-slate-50/50 border-t border-slate-100/50 transition-all duration-300 ease-in-out overflow-hidden ${
-                        isToolsExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
-                      }`}
-                    >
-                      <div className="p-4 space-y-6">
-                        {TOOLS.map((category, catIdx) => (
-                          <div key={catIdx}>
-                            {/* Category Title */}
-                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1 flex items-center">
-                              {category.title}
-                              <div className="h-px bg-slate-200 flex-1 ml-3"></div>
-                            </h4>
-                            
-                            {/* Items Grid */}
-                            <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
-                              {category.items.map((tool, idx) => (
-                                <a 
-                                  key={idx}
-                                  href={tool.url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="flex items-center p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all text-slate-600 hover:text-blue-600 group/item border border-transparent hover:border-slate-100"
-                                >
-                                  <div className="bg-white p-1.5 rounded-md shadow-sm border border-slate-100 mr-3 group-hover/item:text-blue-500 transition-colors">
-                                    <IconHelper name={tool.iconName} size={16} />
-                                  </div>
-                                  <span className="font-medium text-sm">{tool.name}</span>
-                                  <ExternalLink size={12} className="ml-auto opacity-30 group-hover/item:opacity-100 transition-opacity" />
-                                </a>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              // Standard Link Card
-              return (
-                <a 
-                  key={link.id}
-                  href={link.url} 
-                  target={link.url.startsWith('mailto') ? '_self' : '_blank'}
-                  rel="noopener noreferrer"
-                  className={`col-span-1 ${link.id === 'email' ? 'md:col-span-2' : ''} bg-white/80 border border-slate-200/60 p-4 rounded-2xl flex items-center space-x-4 cursor-pointer ${colors.border} transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:scale-[1.02] hover:bg-white/95 group backdrop-blur-sm`}
-                >
-                  <div className={`${colors.bg} p-3 rounded-xl ${colors.text} ${colors.hoverBg} group-hover:text-white transition-colors`}>
-                     <IconHelper name={link.iconName} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-slate-800">{link.title}</h3>
-                    <p className="text-xs text-slate-500">{link.subtitle}</p>
-                  </div>
-                  {link.id === 'email' && (
-                    <Send size={20} className="text-slate-300 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
-                  )}
-                </a>
-              );
-            })}
-
-          </div>
-
-          {/* Footer */}
-          <div className="mt-10 text-center text-xs text-slate-500">
-            <p className="mb-2">{PROFILE.footerText}</p>
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="text-slate-500 hover:text-blue-600 transition-colors font-medium border-b border-transparent hover:border-blue-600"
-            >
-              关于
-            </button>
-          </div>
-
+      <main className="flex-1 lg:ml-80 p-6 lg:p-10 overflow-x-hidden">
+        <div className="lg:hidden mb-6">
+           <h1 className="text-2xl font-bold text-slate-800">AeroEngine Pro V2</h1>
         </div>
 
-        <AboutModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          profile={PROFILE}
-        />
-      </div>
+        {/* Physics Warning Banner */}
+        {results.stations['3'] && results.stations['3'].Tt > activeInputs.tt4 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-4 animate-fadeIn shadow-sm">
+            <div className="bg-amber-100 p-2 rounded-lg text-amber-600 flex-shrink-0">
+              <AlertTriangle size={24} />
+            </div>
+            <div>
+              <h3 className="font-bold text-amber-900 text-sm">物理限制警告：燃烧室入口温度过高</h3>
+              <p className="text-amber-700 text-sm mt-1 leading-relaxed">
+                当前飞行条件导致压气机出口温度 (Tt3) 达到 <strong className="font-mono text-amber-900">{results.stations['3'].Tt.toFixed(0)} K</strong>，
+                超过了设定的燃烧室出口温度 (Tt4: {activeInputs.tt4} K)。
+                <br/>
+                此时无法喷油燃烧，发动机推力将大幅下降。建议将 Tt4 设定为 <strong className="text-amber-800 border-b-2 border-amber-800/20 cursor-help" title="建议设定值 = Tt3 + 50K">{(results.stations['3'].Tt + 50).toFixed(0)} K</strong> 以上以恢复正常循环计算。
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+          <MetricCard 
+            title="单位推力 (Fs)" 
+            value={results.Fs.toFixed(1)} 
+            subValue={`${d_Fs > 0 ? '+' : ''}${d_Fs.toFixed(1)} vs 参考值`}
+            trend={d_Fs > 0 ? 'good' : 'neutral'}
+            icon={<Activity size={20} />}
+          />
+          <MetricCard 
+            title="耗油率 (SFC)" 
+            value={results.SFC.toFixed(4)} 
+            subValue={`${d_Sfc > 0 ? '+' : ''}${d_Sfc.toFixed(4)} vs 参考值`}
+            trend={d_Sfc < 0 ? 'good' : 'bad'}
+            icon={<Gauge size={20} />}
+          />
+          <MetricCard 
+            title="净推力 (Fn)" 
+            value={`${F_total_kN.toFixed(1)} kN`}
+            subValue={`推进效率: ${(results.eta_p * 100).toFixed(1)}%`}
+            icon={<TrendingUp size={20} />}
+          />
+          <MetricCard 
+            title="总压比 (OPR)" 
+            value={results.pi_total.toFixed(2)} 
+            subValue={`风扇: ${activeInputs.fanPressureRatio} × 高压: ${activeInputs.hpcPressureRatio.toFixed(2)}`}
+            icon={<Layers size={20} />}
+          />
+        </div>
+
+        {/* Visualization Tabs */}
+        <div className="glass-panel rounded-2xl p-1 min-h-[500px] flex flex-col">
+           <div className="flex space-x-1 bg-slate-100/50 p-1.5 rounded-t-xl overflow-x-auto">
+             {[
+               { id: TabOption.PARAM, label: '截面分析 (Station)', icon: BarChart3 },
+               { id: TabOption.OPT, label: '循环优化 (Optimization)', icon: TrendingUp },
+               { id: TabOption.ENV, label: '飞行包线 (Envelope)', icon: Layers },
+             ].map((tab) => (
+               <button
+                 key={tab.id}
+                 onClick={() => setActiveTab(tab.id)}
+                 className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap
+                   ${activeTab === tab.id 
+                     ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5' 
+                     : 'text-slate-500 hover:text-slate-700 hover:bg-white/50'}`}
+               >
+                 <tab.icon size={16} />
+                 {tab.label}
+               </button>
+             ))}
+           </div>
+
+           <div className="p-6 bg-white/40 flex-1 rounded-b-xl backdrop-blur-sm">
+             {activeTab === TabOption.PARAM && (
+               <div className="animate-fadeIn">
+                 <h3 className="text-lg font-semibold text-slate-800 mb-4">热力学截面参数分析</h3>
+                 <StationChart data={results} />
+                 <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+                    {(Object.entries(results.stations) as [string, StationResult][]).map(([key, val]) => (
+                        <div key={key} className="bg-white/60 rounded p-2 border border-slate-100">
+                            <div className="text-xs text-slate-400 uppercase font-bold">截面 {key}</div>
+                            <div className="text-sm font-semibold text-slate-700">{(val.Pt/1000).toFixed(0)} kPa</div>
+                            <div className="text-xs text-slate-500">{val.Tt.toFixed(0)} K</div>
+                        </div>
+                    ))}
+                 </div>
+               </div>
+             )}
+
+             {activeTab === TabOption.OPT && (
+               <div className="animate-fadeIn flex flex-col gap-8">
+                 <div className="bg-white/60 p-6 rounded-2xl border border-white">
+                    <h3 className="text-lg font-semibold text-slate-800 mb-2">最佳总压比优化</h3>
+                    <p className="text-sm text-slate-500 mb-6">寻找最低 SFC 对应的总压比。对应教材中对 OPR 的选择逻辑。</p>
+                    <OptimizationChart inputs={activeInputs} />
+                 </div>
+
+                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <BypassOptimizationChart inputs={activeInputs} />
+                    <TemperatureSensitivityChart inputs={activeInputs} />
+                 </div>
+               </div>
+             )}
+
+             {activeTab === TabOption.ENV && (
+               <div className="animate-fadeIn h-full">
+                 <h3 className="text-lg font-semibold text-slate-800 mb-2">性能包线图</h3>
+                 <p className="text-sm text-slate-500 mb-6">在不同飞行高度与马赫数下的性能映射，已自动屏蔽 Tt3大于Tt4 的不物理区域。</p>
+                 <EnvelopeChart inputs={activeInputs} />
+               </div>
+             )}
+           </div>
+        </div>
+
+      </main>
     </div>
   );
 };
