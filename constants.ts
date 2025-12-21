@@ -61,6 +61,11 @@ export const TOOLS: ToolCategory[] = [
         name: 'Google 翻译', 
         url: 'https://translate.google.com/',
         iconName: 'Languages',
+      },
+	  {
+        name: '壁纸',
+        url: 'https://wp.systemwow.top/',
+        iconName: 'Wallpaper',
       }
     ]
   },
