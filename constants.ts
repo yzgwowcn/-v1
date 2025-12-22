@@ -38,8 +38,13 @@ export const TOOLS: ToolCategory[] = [
     title: '学校相关',
     items: [
       {
-        name: '推进原理与技术-在线计算',
+        name: '推进原理与技术混排版-在线计算',
         url: 'https://aero.systemwow.top/',
+        iconName: 'Rocket',
+      },
+	  {
+        name: '推进原理与技术分排版-在线计算',
+        url: 'https://aerocivil.systemwow.top/',
         iconName: 'Rocket',
       },
 	  {
