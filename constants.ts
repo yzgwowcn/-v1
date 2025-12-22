@@ -94,6 +94,16 @@ export const TOOLS: ToolCategory[] = [
     items: [
       { name: '游戏资源-非线性列车', url: 'https://juij.fun/', iconName: 'Gamepad2' }
     ]
+  },
+  {
+    title: 'AI工具',
+    items: [
+      { name: '音乐制作', url: 'https://suno.com/', iconName: 'Music' }，
+	  { name: 'Gemini', url: 'https://gemini.google.com/app', iconName: 'Bot' }，
+	  { name: 'ChatGPT', url: 'https://chatgpt.com/', iconName: 'Bot' },
+	  { name: 'AI studio', url: 'https://aistudio.google.com/', iconName: 'MonitorCloud' }，
+	  { name: 'Flow', url: 'https://labs.google/fx/zh/tools/flow', iconName: 'Clapperboard' }
+    ]
   }
 ];
 
