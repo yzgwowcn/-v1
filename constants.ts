@@ -102,6 +102,7 @@ export const TOOLS: ToolCategory[] = [
 	  { name: 'Gemini', url: 'https://gemini.google.com/app', iconName: 'Bot' },
 	  { name: 'ChatGPT', url: 'https://chatgpt.com/', iconName: 'Bot' },
 	  { name: 'AI studio', url: 'https://aistudio.google.com/', iconName: 'MonitorCloud' },
+	  { name: 'NotebookLM', url: 'https://notebooklm.google.com/', iconName: 'NotebookPen' },
 	  { name: 'Flow', url: 'https://labs.google/fx/zh/tools/flow', iconName: 'Clapperboard' }
     ]
   }
