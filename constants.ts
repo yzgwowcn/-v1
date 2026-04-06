@@ -82,6 +82,11 @@ export const TOOLS: ToolCategory[] = [
         url: 'https://p2p.systemwow.top/',
         iconName: 'MessageCircleWarning',
       },
+	  {
+        name: 'PDF快捷拆分',
+        url: 'https://ezpdf.systemwow.top/',
+        iconName: 'FileText',
+      },
       {
         name: 'IP',
         url: 'https://ip.systemwow.top/',
