@@ -48,6 +48,11 @@ export const TOOLS: ToolCategory[] = [
         iconName: 'Rocket',
       },
 	  {
+        name: '四川大学自行车协会',
+        url: 'https://cascu.systemwow.top/',
+        iconName: 'Bike',
+      },
+	  {
         name: '四川大学图书馆',
         url: 'https://lib.scu.edu.cn/',
         iconName: 'LibraryBig',
