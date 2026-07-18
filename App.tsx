@@ -1,232 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import { ExternalLink, ChevronDown, Send, Search } from 'lucide-react';
-import MouseFollower from './components/MouseFollower';
+import React, { useMemo, useState } from 'react';
+import {
+  ArrowDownRight, ArrowUpRight, Command, Copy, Github, Mail,
+  Play, Sparkles, X
+} from 'lucide-react';
 import IconHelper from './components/IconHelper';
-import AboutModal from './components/AboutModal';
-import ThemeSwitcher from './components/ThemeSwitcher';
-import BackgroundEffect from './components/BackgroundEffect';
-import StyleEditor from './components/StyleEditor';
-import WeatherSidebar from './components/WeatherSidebar';
-import SearchBar from './components/SearchBar';
-import Hitokoto from './components/Hitokoto';
-import { LINKS, PROFILE, TOOLS, THEME_CONFIG } from './constants';
-import type { ThemeMode, BackgroundSettings } from './types';
+import { LINKS, PROFILE, TOOLS } from './constants';
 
 const App: React.FC = () => {
-  const [isToolsExpanded, setIsToolsExpanded] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [themeMode, setThemeMode] = useState<ThemeMode>('night');
-  
-  // New State for Background Customization
-  const [bgSettings, setBgSettings] = useState<BackgroundSettings>({
-    speed: 1.0,
-    blur: 80,
-    hue: 0,
-    saturation: 100,
-  });
+  const [activeCategory, setActiveCategory] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  // Global Keyboard Shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Toggle Search with Ctrl+K or Cmd+K
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsSearchOpen((prev) => !prev);
-      }
-    };
+  const activeTools = useMemo(() => TOOLS[activeCategory]?.items ?? [], [activeCategory]);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // Lookup for dynamic colors
-  const colorMap: Record<string, { bg: string, text: string, hoverBg: string, border: string }> = {
-    blue: { bg: 'bg-blue-50', text: 'text-blue-600', hoverBg: 'group-hover:bg-blue-600', border: 'hover:border-blue-300' },
-    pink: { bg: 'bg-pink-50', text: 'text-pink-500', hoverBg: 'group-hover:bg-pink-500', border: 'hover:border-pink-300' },
-    gray: { bg: 'bg-gray-100', text: 'text-gray-700', hoverBg: 'group-hover:bg-slate-800', border: 'hover:border-gray-400' },
-    purple: { bg: 'bg-purple-50', text: 'text-purple-600', hoverBg: 'group-hover:bg-purple-600', border: 'hover:border-purple-300' },
+  const copyEmail = async () => {
+    await navigator.clipboard?.writeText(PROFILE.email);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden font-sans transition-colors duration-700">
-      
-      {/* Advanced Background System with Dynamic Settings */}
-      <BackgroundEffect mode={themeMode} config={THEME_CONFIG} settings={bgSettings} />
-
-      {/* --- FLOATING CONTROLS --- */}
-      
-      {/* 1. Theme Switcher (Top Right Fixed) */}
-      <ThemeSwitcher currentMode={themeMode} onSelectMode={setThemeMode} />
-
-      {/* 2. Style Editor (Right Edge Center Fixed - handled inside component) */}
-      <StyleEditor settings={bgSettings} onChange={setBgSettings} />
-
-      {/* 3. Search Trigger (Right Edge Fixed - Unified Style) */}
-      <button 
-        onClick={() => setIsSearchOpen(true)}
-        className="fixed right-0 top-[42%] z-40 py-3 pl-4 pr-3 rounded-l-2xl bg-white/20 backdrop-blur-md border-y border-l border-white/30 shadow-[0_4px_20px_rgba(0,0,0,0.05)] text-slate-600 hover:text-blue-600 hover:bg-white/60 hover:pl-6 transition-all duration-300 group"
-        title="搜索 (Ctrl+K)"
-      >
-        <Search size={20} className="group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-300" />
-      </button>
-
-      {/* 4. Weather Sidebar (Left Edge Center Fixed - handled inside component) */}
-      <WeatherSidebar />
-
-
-      {/* Universal Search Modal */}
-      <SearchBar isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-
-      {/* Mouse Follower Layer */}
-      <MouseFollower />
-      
-      {/* Content Container (Above background) */}
-      <div className="relative z-10 w-full p-4 flex justify-center mb-16 mt-8"> 
-        {/* Main Glass Container */}
-        <div className="glass-effect w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden p-6 md:p-10 relative bg-white/80 backdrop-blur-2xl border border-white/40 ring-1 ring-white/30">
-          
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className="w-24 h-24 mx-auto mb-4 relative flex items-center justify-center group">
-              {/* Logo Animation Rings */}
-              <div className="absolute inset-0 border-4 border-blue-400/30 rounded-full animate-pulse"></div>
-              <div className="absolute inset-2 border-2 border-blue-500 rounded-full border-dashed animate-spin-slow"></div>
-              
-              <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center shadow-lg z-10 overflow-hidden relative">
-                 <span className="text-2xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 tracking-widest z-10">
-                   {PROFILE.avatarText}
-                 </span>
-                 {/* Shine effect on hover */}
-                 <div className="absolute inset-0 bg-white/10 skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-              </div>
-            </div>
-            
-            <h1 className="text-2xl font-bold mb-1 text-slate-800 tracking-tight">{PROFILE.title}</h1>
-            <p className="text-sm text-slate-500 mb-6 font-light">{PROFILE.subtitle}</p>
-            
-            {/* Dynamic Hitokoto Subtitle Card */}
-            <Hitokoto defaultText="生活明朗，万物可爱。" />
-            
+    <main className="site-shell">
+      <section className="hero-section" id="home">
+        <div className="grain" aria-hidden="true" />
+        <nav className="topbar" aria-label="主导航">
+          <a className="brand" href="#home" aria-label="YZG 首页"><span className="brand-mark">Y</span><span>YZG</span></a>
+          <div className="nav-links">
+            <a href="#links">入口</a><a href="#toolbox">工具箱</a><a href="#about">关于</a>
           </div>
+          <button className="menu-button" onClick={() => setIsMenuOpen(true)} aria-label="打开菜单"><Command size={17} /> Menu</button>
+        </nav>
 
-          {/* Links Grid */}
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-            
-            {LINKS.map((link) => {
-              const colors = colorMap[link.colorClass] || colorMap['blue'];
-
-              // Special handling for the Tools Group
-              if (link.isToolGroup) {
-                return (
-                  <div 
-                    key={link.id} 
-                    className={`col-span-1 md:col-span-2 bg-white/80 border border-slate-200/60 rounded-2xl overflow-hidden transition-all duration-300 shadow-sm hover:shadow-xl hover:scale-[1.01] hover:bg-white/95 ${colors.border} group backdrop-blur-sm`}
-                  >
-                    <div 
-                      className="p-4 flex items-center justify-between cursor-pointer" 
-                      onClick={() => setIsToolsExpanded(!isToolsExpanded)}
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className={`${colors.bg} p-3 rounded-xl ${colors.text} ${colors.hoverBg} group-hover:text-white transition-colors`}>
-                          <IconHelper name={link.iconName} />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-lg text-slate-800">{link.title}</h3>
-                          <p className="text-xs text-slate-500">{link.subtitle}</p>
-                        </div>
-                      </div>
-                      <ChevronDown 
-                        className={`text-slate-400 transition-transform duration-300 ${isToolsExpanded ? 'rotate-180' : ''}`} 
-                      />
-                    </div>
-                    
-                    {/* Expanded List with Categories */}
-                    <div 
-                      className={`bg-slate-50/50 border-t border-slate-100/50 transition-all duration-300 ease-in-out overflow-hidden ${
-                        isToolsExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
-                      }`}
-                    >
-                      <div className="p-4 space-y-6">
-                        {TOOLS.map((category, catIdx) => (
-                          <div key={catIdx}>
-                            {/* Category Title */}
-                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1 flex items-center">
-                              {category.title}
-                              <div className="h-px bg-slate-200 flex-1 ml-3"></div>
-                            </h4>
-                            
-                            {/* Items Grid */}
-                            <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
-                              {category.items.map((tool, idx) => (
-                                <a 
-                                  key={idx}
-                                  href={tool.url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="flex items-center p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all text-slate-600 hover:text-blue-600 group/item border border-transparent hover:border-slate-100"
-                                >
-                                  <div className="bg-white p-1.5 rounded-md shadow-sm border border-slate-100 mr-3 group-hover/item:text-blue-500 transition-colors">
-                                    <IconHelper name={tool.iconName} size={16} />
-                                  </div>
-                                  <span className="font-medium text-sm">{tool.name}</span>
-                                  <ExternalLink size={12} className="ml-auto opacity-30 group-hover/item:opacity-100 transition-opacity" />
-                                </a>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              // Standard Link Card
-              return (
-                <a 
-                  key={link.id}
-                  href={link.url} 
-                  target={link.url.startsWith('mailto') ? '_self' : '_blank'}
-                  rel="noopener noreferrer"
-                  className={`col-span-1 ${link.id === 'email' ? 'md:col-span-2' : ''} bg-white/80 border border-slate-200/60 p-4 rounded-2xl flex items-center space-x-4 cursor-pointer ${colors.border} transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:scale-[1.02] hover:bg-white/95 group backdrop-blur-sm`}
-                >
-                  <div className={`${colors.bg} p-3 rounded-xl ${colors.text} ${colors.hoverBg} group-hover:text-white transition-colors`}>
-                     <IconHelper name={link.iconName} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-slate-800">{link.title}</h3>
-                    <p className="text-xs text-slate-500">{link.subtitle}</p>
-                  </div>
-                  {link.id === 'email' && (
-                    <Send size={20} className="text-slate-300 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
-                  )}
-                </a>
-              );
-            })}
-
+        <div className="hero-copy">
+          <p className="eyebrow"><span /> PERSONAL INTERNET SPACE</p>
+          <h1>把好奇心，<br /><em>放在触手可及处。</em></h1>
+          <p className="hero-description">YZG 的数字工作台：收集灵感、链接工具，也把正在发生的校园与生活留在这里。</p>
+          <div className="hero-actions">
+            <a className="button button-light" href="#links">探索入口 <ArrowDownRight size={17} /></a>
+            <a className="text-action" href="https://github.com/yzgwowcn" target="_blank" rel="noreferrer">GitHub <ArrowUpRight size={15} /></a>
           </div>
-
-          {/* Footer */}
-          <div className="mt-10 text-center text-xs text-slate-500">
-            <p className="mb-2">{PROFILE.footerText}</p>
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="text-slate-500 hover:text-blue-600 transition-colors font-medium border-b border-transparent hover:border-blue-600"
-            >
-              关于
-            </button>
-          </div>
-
         </div>
 
-        <AboutModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          profile={PROFILE}
-        />
-      </div>
-    </div>
+        <div className="desktop-stage" aria-label="YZG 个人空间预览">
+          <div className="stage-glow" />
+          <div className="window-bar"><div className="traffic-lights"><i /><i /><i /></div><span>yzg.space</span><span className="window-time">SCU · CHENGDU</span></div>
+          <div className="window-content">
+            <div className="window-profile"><span>YZG</span><p>个人空间<br /><small>四川大学</small></p></div>
+            <div className="window-note"><Sparkles size={15} /><span>生活明朗，万物可爱。</span></div>
+            <div className="window-mini-grid"><div><Github size={18} /><span>Code</span></div><div><Play size={18} /><span>Videos</span></div><div><Command size={18} /><span>Tools</span></div></div>
+          </div>
+        </div>
+        <p className="scroll-cue">SCROLL TO EXPLORE <span>↓</span></p>
+      </section>
+
+      <section className="intro-section" id="about">
+        <p className="section-index">01 / ABOUT</p>
+        <div><h2>一个更轻盈的<br /><em>个人起点。</em></h2></div>
+        <div className="intro-copy"><p>这里不是信息的终点，而是快速抵达有用内容的开始。无论是学习、创作，还是一时的灵感，都值得有一个安静、可靠的入口。</p><div className="signature">YZG <span>·</span> Since 2025</div></div>
+      </section>
+
+      <section className="links-section" id="links">
+        <div className="section-heading"><div><p className="section-index">02 / CONNECT</p><h2>常用入口</h2></div><p>我的线上足迹与联系渠道。</p></div>
+        <div className="social-grid">
+          {LINKS.filter(link => !link.isToolGroup).map((link, index) => {
+            const Icon = link.id === 'github' ? Github : link.id === 'email' ? Mail : Play;
+            return <a key={link.id} className={`social-card social-card-${index}`} href={link.url} target={link.url.startsWith('mailto:') ? undefined : '_blank'} rel="noreferrer">
+              <div className="card-top"><Icon size={22} /><ArrowUpRight size={18} /></div><div><h3>{link.title}</h3><p>{link.subtitle}</p></div>
+            </a>;
+          })}
+          <button className="email-strip" onClick={copyEmail}><span><Mail size={18} /> {copied ? '邮箱地址已复制' : PROFILE.email}</span><Copy size={17} /></button>
+        </div>
+      </section>
+
+      <section className="toolbox-section" id="toolbox">
+        <div className="toolbox-header"><div><p className="section-index">03 / TOOLBOX</p><h2>恰好有用的<br /><em>工具集合。</em></h2></div><p>为学习、日常与创作准备的一组快捷入口。按场景选择，直接开始。</p></div>
+        <div className="toolbox-layout">
+          <div className="category-list" role="tablist" aria-label="工具分类">
+            {TOOLS.map((category, index) => <button key={category.title} className={activeCategory === index ? 'active' : ''} onClick={() => setActiveCategory(index)} role="tab" aria-selected={activeCategory === index}><span>0{index + 1}</span>{category.title}<ArrowUpRight size={16} /></button>)}
+          </div>
+          <div className="tool-list">
+            <div className="tool-list-title"><span>SELECTED COLLECTION</span><b>{TOOLS[activeCategory]?.title}</b></div>
+            {activeTools.map((tool, index) => <a className="tool-row" href={tool.url} target="_blank" rel="noreferrer" key={tool.name}><span className="tool-number">0{index + 1}</span><span className="tool-icon"><IconHelper name={tool.iconName} size={19} /></span><span>{tool.name}</span><ArrowUpRight size={17} /></a>)}
+          </div>
+        </div>
+      </section>
+
+      <footer className="footer"><div className="footer-brand">YZG<span>.</span></div><p>{PROFILE.footerText}</p><a href="#home">BACK TO TOP ↑</a></footer>
+
+      {isMenuOpen && <div className="menu-overlay" role="dialog" aria-modal="true" aria-label="导航菜单"><button className="close-menu" onClick={() => setIsMenuOpen(false)} aria-label="关闭菜单"><X size={25} /></button><p>YZG / MENU</p><a onClick={() => setIsMenuOpen(false)} href="#links">常用入口 <ArrowDownRight /></a><a onClick={() => setIsMenuOpen(false)} href="#toolbox">工具箱 <ArrowDownRight /></a><a onClick={() => setIsMenuOpen(false)} href="#about">关于 <ArrowDownRight /></a></div>}
+    </main>
   );
 };
 
